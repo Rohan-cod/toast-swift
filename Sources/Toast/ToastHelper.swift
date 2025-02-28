@@ -11,8 +11,23 @@ import UIKit
 class ToastHelper {
     
     public static func topController() -> UIViewController? {
-        return UIApplication.shared.windows.first
+    var topController: UIViewController?
+
+    if #available(iOS 13.0, *) {
+        topController = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }?.rootViewController
+    } else {
+        topController = UIApplication.shared.keyWindow?.rootViewController
     }
+
+    while let presented = topController?.presentedViewController {
+        topController = presented
+    }
+
+    return topController
+}
 
     private static func keyWindow() -> UIWindow? {
         if #available(iOS 13.0, *) {
