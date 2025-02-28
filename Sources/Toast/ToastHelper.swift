@@ -11,13 +11,7 @@ import UIKit
 class ToastHelper {
     
     public static func topController() -> UIViewController? {
-        if var topController = keyWindow()?.rootViewController {
-            while let presentedViewController = topController.presentedViewController {
-                topController = presentedViewController
-            }
-            return topController
-        }
-        return nil
+        return keyWindow()?.rootViewController
     }
 
     private static func keyWindow() -> UIWindow? {
