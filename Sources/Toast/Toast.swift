@@ -158,35 +158,48 @@ public class Toast {
     /// Show the toast
     /// - Parameter delay: Time after which the toast is shown
     public func show(after delay: TimeInterval = 0) {
-        if let backgroundView = self.createBackgroundView() {
-            self.backgroundView = backgroundView
-            config.view?.addSubview(backgroundView) ?? ToastHelper.topController()?.view.addSubview(backgroundView)
-        }
-
-        UIView.performWithoutAnimation {
-            config.view?.addSubview(view) ?? ToastHelper.topController()?.view.addSubview(view)
-            view.createView(for: self)
-            view.layoutIfNeeded()
-        }
-        
-        multicast.invoke { $0.willShowToast(self) }
-
-        config.enteringAnimation.apply(to: self.view)
-        let endBackgroundColor = backgroundView?.backgroundColor
-        backgroundView?.backgroundColor = .clear
-        UIView.animate(withDuration: config.animationTime, delay: delay, options: [.curveEaseOut, .allowUserInteraction]) {
-            self.config.enteringAnimation.undo(from: self.view)
-            self.backgroundView?.backgroundColor = endBackgroundColor
-        } completion: { [self] _ in
-            multicast.invoke { $0.didShowToast(self) }
-            
-            configureCloseTimer()
-            if !config.allowToastOverlap {
-                closeOverlappedToasts()
-            }
-            Toast.activeToasts.append(self)
-        }
+    // Ensure we have a dedicated toast window
+    if ToastHelper.toastWindow == nil {
+        let newWindow = UIWindow(frame: UIScreen.main.bounds)
+        newWindow.windowLevel = .alert + 1 // Ensure it's above overlays
+        newWindow.backgroundColor = .clear
+        newWindow.isHidden = false
+        newWindow.rootViewController = UIViewController() // Dummy VC to hold the toast
+        ToastHelper.toastWindow = newWindow
     }
+
+    guard let toastWindow = ToastHelper.toastWindow else { return }
+    
+    // Create the background view if needed
+    if let backgroundView = self.createBackgroundView() {
+        self.backgroundView = backgroundView
+        toastWindow.rootViewController?.view.addSubview(backgroundView)
+    }
+
+    UIView.performWithoutAnimation {
+        toastWindow.rootViewController?.view.addSubview(view)
+        view.createView(for: self)
+        view.layoutIfNeeded()
+    }
+
+    multicast.invoke { $0.willShowToast(self) }
+
+    config.enteringAnimation.apply(to: self.view)
+    let endBackgroundColor = backgroundView?.backgroundColor
+    backgroundView?.backgroundColor = .clear
+    UIView.animate(withDuration: config.animationTime, delay: delay, options: [.curveEaseOut, .allowUserInteraction]) {
+        self.config.enteringAnimation.undo(from: self.view)
+        self.backgroundView?.backgroundColor = endBackgroundColor
+    } completion: { [self] _ in
+        multicast.invoke { $0.didShowToast(self) }
+        
+        configureCloseTimer()
+        if !config.allowToastOverlap {
+            closeOverlappedToasts()
+        }
+        Toast.activeToasts.append(self)
+    }
+}
     
     private func closeOverlappedToasts() {
         Toast.activeToasts.forEach {
