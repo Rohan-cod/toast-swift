@@ -160,7 +160,7 @@ public class Toast {
     public func show(after delay: TimeInterval = 0) {
     // Ensure we have a dedicated toast window
     if ToastHelper.toastWindow == nil {
-        let newWindow = UIWindow(frame: UIScreen.main.bounds)
+        let newWindow = UIWindow(frame: view.bounds)
         newWindow.windowLevel = .alert + 1 // Ensure it's above overlays
         newWindow.backgroundColor = .clear
         newWindow.isHidden = false
