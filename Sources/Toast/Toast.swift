@@ -176,14 +176,20 @@ public class Toast {
         toastWindow.rootViewController?.view.addSubview(backgroundView)
     }
 
+        toastWindow?.rootViewController?.view.frame = view.bounds
+
+        toastWindow?.rootViewController?.view.gestureRecognizers?.forEach({ gr in
+            toastWindow?.rootViewController?.view.removeGestureRecognizer(gr)
+        })
+        toastWindow?.gestureRecognizers?.forEach({ gr in
+            toastWindow?.removeGestureRecognizer(gr)
+        })
+        
     UIView.performWithoutAnimation {
         toastWindow.rootViewController?.view.addSubview(view)
         view.createView(for: self)
         view.layoutIfNeeded()
     }
-
-    toastWindow.frame = view.frame
-    toastWindow.center = CGPoint(x: UIScreen.main.bounds.midX, y: view.frame.midY)
 
     multicast.invoke { $0.willShowToast(self) }
 
