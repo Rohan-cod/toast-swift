@@ -176,13 +176,13 @@ public class Toast {
         toastWindow.rootViewController?.view.addSubview(backgroundView)
     }
 
-        toastWindow?.rootViewController?.view.frame = view.bounds
+        toastWindow.rootViewController?.view.frame = view.bounds
 
-        toastWindow?.rootViewController?.view.gestureRecognizers?.forEach({ gr in
-            toastWindow?.rootViewController?.view.removeGestureRecognizer(gr)
+        toastWindow.rootViewController?.view.gestureRecognizers?.forEach({ gr in
+            toastWindow.rootViewController?.view.removeGestureRecognizer(gr)
         })
-        toastWindow?.gestureRecognizers?.forEach({ gr in
-            toastWindow?.removeGestureRecognizer(gr)
+        toastWindow.gestureRecognizers?.forEach({ gr in
+            toastWindow.removeGestureRecognizer(gr)
         })
         
     UIView.performWithoutAnimation {
