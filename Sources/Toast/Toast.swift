@@ -182,6 +182,9 @@ public class Toast {
         view.layoutIfNeeded()
     }
 
+    toastWindow.frame = view.frame
+    toastWindow.center = CGPoint(x: UIScreen.main.bounds.midX, y: view.frame.midY)
+
     multicast.invoke { $0.willShowToast(self) }
 
     config.enteringAnimation.apply(to: self.view)
@@ -228,6 +231,13 @@ public class Toast {
         }, completion: { _ in
             self.backgroundView?.removeFromSuperview()
             self.view.removeFromSuperview()
+
+        // **Only remove the window if no active toasts**
+        if Toast.activeToasts.isEmpty {
+            ToastHelper.toastWindow?.isHidden = true
+            ToastHelper.toastWindow = nil
+        }
+                        
             if let index = Toast.activeToasts.firstIndex(where: { $0 == self }) {
                 Toast.activeToasts.remove(at: index)
             }
