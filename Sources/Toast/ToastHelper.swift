@@ -11,11 +11,18 @@ import UIKit
 class ToastHelper {
     
     public static func topController() -> UIViewController? {
-        guard let window = UIApplication.shared.connectedScenes
-        .compactMap({ $0 as? UIWindowScene })
-        .flatMap({ $0.windows })
-        .first(where: { $0.isKeyWindow }) else {
-        return nil
+        var window: UIWindow?
+    
+    if #available(iOS 13.0, *) {
+        window = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }
+    } else {
+        window = UIApplication.shared.keyWindow // Deprecated in iOS 13, but works for older versions
+    }
+    
+    return window?.rootViewController
     }
     
     return window.rootViewController
